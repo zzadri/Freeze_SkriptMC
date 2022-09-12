@@ -1,0 +1,54 @@
+command /freeze <player>:
+	trigger:
+		if player has permission "moderateur.use":
+			if arg 1 is set:
+				if arg 1 is online:
+					if {locfreeze.%arg 1%} is not set:
+						set {_loc} to location of arg 1
+						set {locfreeze.%arg 1%} to location of arg 1
+						add 25 to y-coordinate of {_loc}
+						loop all blocks in radius 3 around {_loc}:
+							if loop-blocks is air:
+								set loop-blocks to bedrock blocks
+						teleport arg 1 to {_loc}
+						send arg 1 title "&c&ktt&r &4Freeze&r &c&ktt" with subtitle "&4Merci de venir sur le discord." for 3.9 seconds
+						send "{@PM} {@CN} &4&l             ! ATTENTION !" to arg 1
+						send "   " to arg 1
+						send "&cVous êtes freeze, merci de bien vouloir venir sur notre discord." to arg 1
+						send "   " to arg 1
+						send "{@PM} {@CM} Vous venez de freeze %arg 1%" to player
+						stop
+					else:
+						loop all blocks in radius 5 around arg 1:
+							if loop-blocks is bedrock:
+								set loop-blocks to air
+						send "{@PM} {@CM} Vous venez d'unfreeze %arg 1% !" to player
+						teleport arg 1 to {locfreeze.%arg 1%}
+						clear {locfreeze.%arg 1%}
+						stop
+		else:
+			send "{@PN} {@CN} {@Nu}" to player
+
+on disconnect:
+	if {locfreeze.%player%} is set:
+		loop all blocks in radius 5 around player:
+			if loop-blocks is bedrock:
+				set loop-blocks to air
+		ban player due to "&cDéconnexion en freeze."
+		broadcast "     "
+		broadcast "                               &4&lHykoSanction"
+		broadcast "    "
+		broadcast "&c%player% &4vient de déconnecter en freeze, il est donc &c&lbanni&4."
+		broadcast "     "
+		play raw sound "mob.wither.death" at player with pitch 1 volume 10
+		strike fake fake lightning at player
+		clear {locfreeze.%player%}
+		
+
+on command:
+	if {locfreeze.%player%} is set:
+		cancel event
+
+on damage:
+	if {locfreeze.%victim%} is set:
+		cancel event
